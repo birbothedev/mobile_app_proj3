@@ -10,10 +10,18 @@ import com.android.volley.toolbox.Volley
 import com.example.project3.databinding.ActivityMainBinding
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
+
+    private lateinit var coinNames : String
+    private lateinit var coinSupply : String
+    private lateinit var coinSymbol : String
+    private lateinit var coinPrice : String
+    private lateinit var coinPercentChange : String
+    private val coinList = ArrayList<Coin>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         retrieveCoinInfo()
 
         binding.coinInfoButton.setOnClickListener {
+            Log.i("MainActivity", "price: $coinPrice")
         }
 
     }
@@ -33,8 +42,6 @@ class MainActivity : AppCompatActivity() {
         val coinURL = "https://api.coincap.io/v2/assets"
         val queue = Volley.newRequestQueue(this)
 
-        var coinNames : Array<String> = emptyArray()
-        var coinSupply : String
 
         // this syntax was recommended by the ide
         val stringRequest = StringRequest (
@@ -47,15 +54,14 @@ class MainActivity : AppCompatActivity() {
                 for (i in 0 until coinArray.length()) {
                     val theCoin : JSONObject = coinArray.getJSONObject(i)
 
-                    // show name coinInfoByName(name)
+                    coinNames = theCoin.getString("name")
+                    coinSupply = theCoin.getDouble("supply").roundToInt().toString()
+                    coinSymbol = theCoin.getString("symbol")
+                    coinPrice = roundNumber(theCoin.getDouble("priceUsd"))
+                    coinPercentChange = roundNumber(theCoin.getDouble("changePercent24Hr"))
 
-                    coinNames = arrayOf(theCoin.getString("name"))
-                    coinSupply = theCoin.getString("supply")
+                    coinList.add(Coin(coinNames, coinSymbol, coinPrice, coinPercentChange, coinSupply))
 
-//                    Log.i("MainActivity",
-//                        "Coin Name: ${theCoin.getString("name")}")
-//                    Log.i("MainActivity",
-//                        "Coin Symbol: ${theCoin.getString("symbol")}")
                 }
             },
             {
@@ -65,38 +71,9 @@ class MainActivity : AppCompatActivity() {
         queue.add(stringRequest)
     }
 
-//    private fun printCoinInfo(){
-//        val coinURL = "https://api.coincap.io/v2/assets"
-//        val queue = Volley.newRequestQueue(this)
-//
-//        // this syntax was recommended by the ide
-//        val stringRequest = StringRequest (
-//            Request.Method.GET, coinURL,
-//            { response ->
-//                // create json object then get data array from object
-//                val jsonResponse = JSONObject(response)
-//                val coinArray : JSONArray = jsonResponse.getJSONArray("data")
-//
-//                for (i in 0 until coinArray.length()) {
-//                    val theCoin : JSONObject = coinArray.getJSONObject(i)
-//
-//                    // show name coinInfoByName(name)
-//
-//                    Log.i("MainActivity",
-//                        "Coin Name: ${theCoin.getString("name")}")
-//                    Log.i("MainActivity",
-//                        "Coin Symbol: ${theCoin.getString("symbol")}")
-//                }
-//            },
-//            {
-//                Log.i("MainActivity", "That didn't work!")
-//            })
-//
-//        queue.add(stringRequest)
-//    }
-
-    private fun coinInfoByName(name : String) {
-        // drop down name = name
-        // return information
+    private fun roundNumber(double : Double): String {
+        // round to 2 decimal places and return as a string
+        return "%.2f".format(double)
     }
+
 }

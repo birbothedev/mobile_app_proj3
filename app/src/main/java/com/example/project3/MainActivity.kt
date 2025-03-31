@@ -1,7 +1,11 @@
 package com.example.project3
 
+import android.R
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -15,35 +19,30 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
-
-    private lateinit var coinNames : String
-    private lateinit var coinSupply : String
-    private lateinit var coinSymbol : String
-    private lateinit var coinPrice : String
-    private lateinit var coinPercentChange : String
     private val coinList = ArrayList<Coin>()
+    private val namesList = ArrayList<String>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         enableEdgeToEdge()
 
         retrieveCoinInfo()
 
         binding.coinInfoButton.setOnClickListener {
-            Log.i("MainActivity", "price: $coinPrice")
+            for (coin in coinList){
+                Log.i("MainActivity", coin.name)
+            }
         }
-
     }
 
     private fun retrieveCoinInfo(){
         val coinURL = "https://api.coincap.io/v2/assets"
         val queue = Volley.newRequestQueue(this)
 
-
-        // this syntax was recommended by the ide
+        // this shortened for request/response syntax was recommended by the ide
         val stringRequest = StringRequest (
             Request.Method.GET, coinURL,
             { response ->
@@ -54,14 +53,36 @@ class MainActivity : AppCompatActivity() {
                 for (i in 0 until coinArray.length()) {
                     val theCoin : JSONObject = coinArray.getJSONObject(i)
 
-                    coinNames = theCoin.getString("name")
-                    coinSupply = theCoin.getDouble("supply").roundToInt().toString()
-                    coinSymbol = theCoin.getString("symbol")
-                    coinPrice = roundNumber(theCoin.getDouble("priceUsd"))
-                    coinPercentChange = roundNumber(theCoin.getDouble("changePercent24Hr"))
+                    val coinNames = theCoin.getString("name")
+                    val coinSupply = theCoin.getDouble("supply").roundToInt().toString()
+                    val coinSymbol = theCoin.getString("symbol")
+                    val coinPrice = roundNumber(theCoin.getDouble("priceUsd"))
 
+                    // check to avoid null error
+                    val coinPercentChange: String = if (!theCoin.isNull("changePercent24Hr")){
+                        roundNumber(theCoin.getDouble("changePercent24Hr"))
+                    } else {
+                        "0.00"
+                    }
                     coinList.add(Coin(coinNames, coinSymbol, coinPrice, coinPercentChange, coinSupply))
+                    namesList.add(coinNames)
+                }
 
+                // update spinner inside retrieveCoinInfo to ensure dropdown is populated after list is created
+                runOnUiThread {
+                    val adapter = ArrayAdapter(this, R.layout.simple_spinner_dropdown_item, namesList)
+                    binding.coinSpinner.adapter = adapter
+                }
+
+                binding.coinSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
+                        val selectedItem = parent.getItemAtPosition(position) as String
+                        displayCoinInfo(selectedItem)
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        TODO("Not yet implemented")
+                    }
                 }
             },
             {
@@ -76,4 +97,7 @@ class MainActivity : AppCompatActivity() {
         return "%.2f".format(double)
     }
 
+    private fun displayCoinInfo(coinName: String) {}(
+
+    )
 }

@@ -1,5 +1,5 @@
 package com.example.project3
 
-class Coin(name: String, symbol: String, price: String, percentChange: String, supply: String) {
+data class Coin(var name: String, var symbol: String, var price: String, var percentChange: String, var supply: String) {
 
 }

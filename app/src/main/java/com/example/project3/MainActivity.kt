@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private val coinList = ArrayList<Coin>()
     private val namesList = ArrayList<String>()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -30,19 +29,13 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         retrieveCoinInfo()
-
-        binding.coinInfoButton.setOnClickListener {
-            for (coin in coinList){
-                Log.i("MainActivity", coin.name)
-            }
-        }
     }
 
     private fun retrieveCoinInfo(){
         val coinURL = "https://api.coincap.io/v2/assets"
         val queue = Volley.newRequestQueue(this)
 
-        // this shortened for request/response syntax was recommended by the ide
+        // this shortened syntax for request/response was recommended by the ide
         val stringRequest = StringRequest (
             Request.Method.GET, coinURL,
             { response ->
@@ -83,7 +76,6 @@ class MainActivity : AppCompatActivity() {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                         TODO("Not yet implemented")
                     }
-
                 }
             },
             {

@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                         TODO("Not yet implemented")
                     }
+
                 }
             },
             {
@@ -97,7 +98,17 @@ class MainActivity : AppCompatActivity() {
         return "%.2f".format(double)
     }
 
-    private fun displayCoinInfo(coinName: String) {}(
-
-    )
+    private fun displayCoinInfo(coinName : String){
+        for (coin in coinList){
+            if (coin.name == coinName){
+                val coinPrice = "$${coin.price}"
+                val coinPercent = "${coin.percentChange}%"
+                binding.symbolView.text = coin.symbol
+                binding.priceView.text = coinPrice
+                binding.percentView.text = coinPercent
+                binding.supplyView.text = coin.supply
+                binding.coinNameTextView.text = coinName
+            }
+        }
+    }
 }
